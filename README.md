@@ -1,4 +1,4 @@
 # qr-formular
-Obrazac br. 1 sa QR kodom za laksi unos bez prekucavanja.
+Podeli obrasce online
 
-[Otvori obrazac](https://hepek.github.io/qr-formular/form.html)
+[Otvori obrazac](https://commname.github.io/qr-formular-generator/form.html)
