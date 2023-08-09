@@ -10,6 +10,11 @@
     <script type="text/javascript" src="qrcode.min.js"></script>
     <style>
 
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
     h2 {
         font-size: 4mm;
     }
@@ -25,10 +30,19 @@
         margin-bottom: 0.2mm;
     }
 
+    .forumular {
+        margin: auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .bodyUplatnice {
+        display: flex;
+        flex-direction: row;
+    }
+
     .thirdA4centered {
-        width: 210mm;
-        height: 99mm; 
-        position: absolute;
+        width: 100%;
         top:0;
         bottom: 0;
         left: 0;
@@ -37,8 +51,7 @@
     }
 
     .inputbox {
-        width: 95%;
-        height: 13mm;
+        height: 20mm;
         border-color: black;
         border-width: 2px;
         border-style: solid;
@@ -62,22 +75,10 @@
         width: 50%;
         height: 100%;
         float: left;
+        display: flex;
+        flex-direction: column;
     }
 
-    .footer .header {
-        width: 100%;
-    }
-
-    .blank {
-        height: 6mm;
-        float: none;
-        display: table;
-        clear: both;
-    }
-
-    .blank3 {
-        height: 3mm;
-    }
 
     .underline {
         margin: 3mm 0 0 0;
@@ -94,10 +95,6 @@
         width: 8mm;
     }
 
-    .iznos {
-        width: 66mm;
-    }
-
     .ltr {
         float: left;
         margin-left: 6mm;
@@ -109,24 +106,30 @@
 
     .racun {
         margin-left: 6mm;
-        width: 98mm;
+        width: 100%;
     }
     
     .right {
         text-align: right;
     }
+    .qrcode_div {
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+    }
+    .sifravalutaiznos {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+    }
 
     .qrcode {
-        width: 40mm;
-        height: 40mm;
-        position: absolute;
-        left: 167mm;
-        top: 60mm;
+        width: 200;
+        height: 200;
     }
     .qrcode_label {
         width: 40mm;
         height: 7mm;
-        position: absolute;
         left: 167mm;
         top: 103mm;
         font-size: 3mm;
@@ -134,65 +137,82 @@
     </style>
 </head>
 <body>
+    <div class="forumular">
+        <label for="imeiprezime"> Ime i preizme clana</label>
+        <input id="imeiprezime"/>
+        <label for="JMBG"> JMBG clana</label>
+        <input id="jmbg" />
+        <input type="submit" value="Generisi uplatnicu" onClick="generisiUplatnicu()"/>
+    </div>
     <div class="thirdA4centered">
         <div class="container">
             <div class="header"><h2 align=right>НАЛОГ ЗА УПЛАТУ</p></div>
-            <div class="halfpage">
-                <label for="ime">платилац</label>
-                <textarea id="ime" class="inputbox"></textarea>
-                <label for="svrha">сврха уплате</label>
-                <textarea id="svrha" class="inputbox"></textarea>
-                <label for="primalac">прималац</label>
-                <textarea id="primalac" class="inputbox"></textarea>
-                <div class="blank"></div>
-                <hr class="underline">
-                <p class="underscript">печат и потпис платиоца</p>
-                <input id="mestodatum" class="placedate right" style="width:60%;" /><br>
-                <p align=right  class="underscript">место и датум пријема</p>
-            </div>
-
-            <div class="halfpage" style="">
-                <div class="ltr">
-                    <label for="sifra">шиф.</label>
-                    <input id="sifra" class="inputbox mali kratki" />
-                </div>
-                <div class="ltr">
-                    <label for="valuta">валута</label>
-                    <input id="valuta" class="inputbox mali" value="RSD" />
-                </div>
-                <div class="ltr iznos">
-                    <label for="iznos">износ</label>
-                    <input id="iznos" class="inputbox mali iznosbox right" />
-                </div>
-                <div class="blank blank3"></div>
-                <div class="racun">
-                    <label for="racun">рачун примаоца</label>
-                    <input id="racun" class="inputbox mali iznosbox" />
-                </div>
-                <div class="blank blank3"></div>
-                <div>
-                    <div class="ltr">
-                        <label for="model">модел</label>
-                        <input id="model" class="inputbox mali" />
-                    </div>
-                    <div class="ltr">
-                        <label for="poznabr"> и позив на број (одобрење)</label>
-                        <input id="poznabr" class="inputbox mali iznosbox" 
-                        style="width:81.6mm;" />
-                    </div>
-                </div>
-                <div class="blank" style="height: 23mm;"></div>
-                <div style="margin-left:5mm;">
+            <div class="bodyUplatnice" id="uplatnica" style="opacity: 0%;">
+                <div class="halfpage">
+                    <label for="ime">платилац</label>
+                    <textarea id="ime" class="inputbox"></textarea>
+                    <label for="svrha">сврха уплате</label>
+                    <textarea id="svrha" class="inputbox"></textarea>
+                    <label for="primalac">прималац</label>
+                    <textarea id="primalac" class="inputbox"></textarea>
+                    <div class="blank"></div>
                     <hr class="underline">
-                    <p class="underscript">датум извршења</p>
+                    <p class="underscript">печат и потпис платиоца</p>
+                    <input id="mestodatum" style="align-self: flex-end;" class="placedate right" style="width:60%;" />
+                    <br>
+                    <p class="underscript" style="align-self: flex-end;">место и датум пријема</p>
+                </div>
+
+                <div class="halfpage" style="">
+                    <div class="sifravalutaiznos">
+                        <div class="ltr">
+                            <label for="sifra">шиф.</label>
+                            <input id="sifra" class="inputbox mali kratki" />
+                        </div>
+                        <div class="ltr">
+                            <label for="valuta">валута</label>
+                            <input id="valuta" class="inputbox mali" value="RSD" />
+                        </div>
+                        <div class="ltr" style="flex-grow: 1;">
+                            <label for="iznos">износ</label>
+                            <input id="iznos" class="inputbox mali iznosbox right" />
+                        </div>
+                    </div>
+                    <div class="racun">
+                        <label for="racun">рачун примаоца</label>
+                        <input id="racun" class="inputbox mali iznosbox" />
+                    </div>
+                    <div>
+                        <div class="ltr">
+                            <label for="model">модел</label>
+                            <input id="model" class="inputbox mali" />
+                        </div>
+                        <div class="ltr">
+                            <label for="poznabr"> и позив на број (одобрење)</label>
+                            <input id="poznabr" class="inputbox mali iznosbox" style="width: 100%"/>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: row; justify-content: space-between;">
+                        <div style="align-self: flex-end;">
+                            <hr class="underline">
+                            <p class="underscript">датум извршења</p>
+                        </div>
+                        <div class="qrcode_div">
+                            <div class="qrcode_label">NBS IPS QR</div>
+                            <div id="qrcode" class="qrcode"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div>
+                <label for="url"> URL do uplatnice</label>
+                <input style="width: 100%" id="url"/>
+            </div>
         </div>
-        <div>
-            <div id="qrcode" class="qrcode"></div>
-            <div class="qrcode_label">NBS IPS QR</div>
-        </div>
-        <div class="footer"><center><p>Образац бр. 1<p></center></div>
+    </div>
+
+    <div>
+
     </div>
 
     <script type="text/javascript">
@@ -208,8 +228,8 @@
 
         var qrcode = new QRCode(document.getElementById("qrcode"),
            {
-                width: 160,
-                height: 160,
+                width: 200,
+                height: 200,
                 colorDark: "#555555"
            });
 
@@ -240,9 +260,105 @@
                 , "|RO:", $("#model").val().concat($("#poznabr").val()));
 
             qrcode.makeCode(result);
+            updejtujUrl();
         }
 
-        makeCode();
+        function generisiUplatnicu() {
+            $("#ime").val($("#imeiprezime").val());
+            $("#poznabr").val($("#jmbg").val());
+            $("#uplatnica").css("opacity", "100%")
+            makeCode();
+
+        }
+
+        function updejtujUrl() {
+            const platilac = $('#ime').val();
+            const svrha_uplate = $('#svrha').val();
+            const primalac = $('#primalac').val();
+            const sifra = $('#sifra').val();
+            const valuta = $('#valuta').val();
+            const iznos = $('#iznos').val();
+            const racun = $('#racun').val();
+            const model = $('#model').val();
+            const poziv_na_broj = $('#poznabr').val();
+
+            const url = new URL(window.location);
+
+            if (platilac !== "") {
+                url.searchParams.set('platilac', platilac);
+            }
+            if (svrha_uplate !== "") {
+                url.searchParams.set('svrha_uplate', svrha_uplate);
+            }
+            if (primalac !== "") {
+                url.searchParams.set('primalac', primalac);
+            }
+            if (sifra !== "") {
+                url.searchParams.set('sifra', sifra);
+            }
+            if (valuta !== "") {
+                url.searchParams.set('valuta', valuta);
+            }
+            if (iznos !== "") {
+                url.searchParams.set('iznos', iznos);
+            }
+            if (racun !== "") {
+                url.searchParams.set('racun', racun);
+            }
+            if (model !== "") {
+                url.searchParams.set('model', model);
+            }
+            if (poziv_na_broj !== "") {
+                url.searchParams.set('poziv_na_broj', poziv_na_broj);
+            }
+            $('#url').val(url);
+        }
+
+        function popuniIzUrla() {
+            const params = new Proxy(new URLSearchParams(window.location.search), {
+                get: (searchParams, prop) => searchParams.get(prop),
+            });
+            
+            if(params.platilaprimalacc) {
+                $('#ime').val(params.platilac);
+            }
+
+            if(params.svrha_uplate) {
+                $('#svrha').val(params.svrha_uplate);
+            }
+
+            if(params.primalac) {
+                $('#primalac').val(params.primalac);
+            }
+
+            if(params.sifra) {
+                $('#sifra').val(params.sifra);
+            }
+
+            if(params.valuta) {
+                $('#valuta').val(params.valuta);
+            }
+
+            if(params.iznos) {
+                $('#iznos').val(params.iznos);
+            }
+
+            if(params.racun) {
+                $('#racun').val(params.racun);
+            }
+
+            if(params.model) {
+                $('#model').val(params.model);
+            }
+
+            if(params.poziv_na_broj) {
+                $('#poznabr').val(params.poznabr);
+            }
+
+        }
+
+        popuniIzUrla();
+
 
         $("textarea").
             on("blur", function () {
