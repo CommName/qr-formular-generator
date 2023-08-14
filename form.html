@@ -199,6 +199,7 @@
                         </div>
                         <div class="qrcode_div">
                             <div class="qrcode_label">NBS IPS QR</div>
+                            <div id="qrcode_error_message" class="qrcode_label" style="color: red;"></div>
                             <div id="qrcode" class="qrcode"></div>
                         </div>
                     </div>
@@ -250,15 +251,30 @@
         function validateIznos() {
 
             const iznos = $("#iznos").val();
+            let zarezPrisutan = false;
             for (let i = 0; i < iznos.length; i++) {
-                if (!((iznos[i] >= '0' && iznos[i] <= '9') || iznos[i] == ',')) {
+                if (iznos[i] == ',') {
+                    if(zarezPrisutan) {
+                        return {
+                            "ok": false,
+                            "error": "Neispravan izraz za iznos"
+                        }    
+                    }
+                    zarezPrisutan = true;
+                } else if (iznos[i] < '0' || iznos[i] > '9') {
                     return {
                         "ok": false,
                         "error": "Iznos sme da sadrzi samo cifre i karakter ,"
                     }
                 }
             }
-            if(iznos.length >= 2) {
+            if(!zarezPrisutan) {
+                return {
+                        "ok": false,
+                        "error": "Potrebno je dodati karakter , u iznosu"
+                }
+            }
+            if(iznos.length < 2) {
                 return {
                     "ok": false,
                     "error": "Iznos ne sadrzi dovoljno karaktera"
@@ -318,37 +334,58 @@
                 "ok": true
             }
         }
+        var toUtf8 = function(text) {
+          	var surrogate = encodeURIComponent(text);
+          	var result = '';
+            for (var i = 0; i < surrogate.length;) {
+                var character = surrogate[i];
+        		i += 1;
+                if (character == '%') {
+                	var hex = surrogate.substring(i, i += 2);
+        			if (hex) {
+        				result += String.fromCharCode(parseInt(hex, 16));
+        			}
+                } else {
+                	result += character;
+                }
+            }
+            return result;
+        };
 
         function makeCode () {
+            $("#qrcode_error_message").text("");
+            qrcode.clear();
             const brojRacunaValidacija = validateBrojRacuna();
+
+            if (!brojRacunaValidacija.ok) {
+                $("#qrcode_error_message").text(brojRacunaValidacija.error);
+                return;
+            }
+
             const iznos = validateIznos();
+            if (!iznos.ok) {
+                $("#qrcode_error_message").text(iznos.error);
+                return;
+            }
+
             const sifraPlacanja = validateSifraPlacanja();
+            if (!sifraPlacanja.ok) {
+                $("#qrcode_error_message").text(sifraPlacanja.error);
+                return;
+            }
+
             const nazivPlatioca = validateNazivPlatioca();
+            if (!nazivPlatioca.ok) {
+                $("#qrcode_error_message").text(nazivPlatioca.error);
+                return;
+            }
 
-
-
-            /* VALIDACIJA ZA TAG P OPCIONALNI
-таг P не сме садржати више од три реда;
-ако се подаци уписују у две или три линије, уписују се по редоследу,
-што подразумева да се прво уноси назив (име и презиме) платиоца,
-затим улица и број и место платиоца;
-број карактера у тагу P не сме бити већи од 70;
-таг P може садржати бројеве, слова и специјалне карактере (анс)
-у складу са прописом, а табела специјалних карактера приказана
-је у оквиру појашњења за таг N;
-            */
-
-            /* VALIDACIJA ZA TAG S OPCIONALNI
-            Ukupan broj karatkera je 35 upsuje se u jednoj ilniji
-
-            */
 
             
             let result = "K:PR|V:01|C:1|R:".concat($("#racun").val()
                 , "|N:", $("#primalac").val()
                 , "|I:RSD", $("#iznos").val()
-                , "|SF:", $("#sifra").val()
-                , "|RO:", $("#model").val().concat($("#poznabr").val()));
+                , "|SF:", $("#sifra").val());
 
             if($("#ime").val().length > 0) {
                 result = result.concat("|P:", $("#ime").val());
@@ -363,9 +400,12 @@
                 result = result.concat( "|RO:", model.concat($("#poznabr").val()));
             }
 
+            const utf8 = toUtf8(result);
 
+            console.log(result);
+            console.log("Encoded", utf8);
 
-            qrcode.makeCode(result);
+            qrcode.makeCode(utf8);
             updejtujUrl();
         }
 
