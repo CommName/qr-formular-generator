@@ -247,43 +247,85 @@
             };
         }
 
+        function validateIznos() {
+
+            const iznos = $("#iznos").val();
+            for (let i = 0; i < iznos.length; i++) {
+                if (!((iznos[i] >= '0' && iznos[i] <= '9') || iznos[i] == ',')) {
+                    return {
+                        "ok": false,
+                        "error": "Iznos sme da sadrzi samo cifre i karakter ,"
+                    }
+                }
+            }
+            if(iznos.length >= 2) {
+                return {
+                    "ok": false,
+                    "error": "Iznos ne sadrzi dovoljno karaktera"
+                }
+            }
+
+            if(iznos[0] < '0' || iznos[0] > '9'){
+                return {
+                    "ok": false,
+                    "error": "Iznos mora da pocne cifrom"
+                }
+            }
+
+            return {
+                "ok": true
+            }
+        }
+
+        function validateSifraPlacanja() {
+            const sifra = $("#sifra").val();
+            if(sifra.length != 3) {
+                return {
+                    "ok": false,
+                    "error": "Sifra placanja mora da sadrzi tacno 3 cifre"
+                }
+            }
+            for (let i = 0; i < sifra.length; i++) {
+                if (!(sifra[i] >= '0' && sifra[i] <= '9')) {
+                    return {
+                        "ok": false,
+                        "error": "Sifra placanja sme da sadrzi samo cifre"
+                    }
+                }
+            }
+
+            return {
+                "ok": true
+            };
+        }
+
+        function validateNazivPlatioca() {
+            const primalac = $("#primalac").val();
+            if (!(primalac.length > 0)) {
+                return {
+                        "ok": false,
+                        "error": "Primalac je obavezno polje"
+                }
+            }
+            if(primalac.length > 70) {
+                return {
+                    "ok": false,
+                    "error": "Maksimalan broj karaktera za primlaca je 79"
+                }
+            }
+
+            return {
+                "ok": true
+            }
+        }
+
         function makeCode () {
             const brojRacunaValidacija = validateBrojRacuna();
+            const iznos = validateIznos();
+            const sifraPlacanja = validateSifraPlacanja();
+            const nazivPlatioca = validateNazivPlatioca();
 
-            console.log(brojRacunaValidacija);
 
-
-
-            // VALIDACIJA NAZIVA PRIMAOCA N 70 karaktera maksimum, ne sme imati vise od 3 reda
-
-            /* validacija za iznos I
-да обавезно садржи ознаку RSD;
-да се обавезно уписује децимални зарез иза кога се не морају
-писати неважеће децималне нуле;
-да није изостављена цифра за цело место у износу;
-да није направљен размак између ознаке валуте и износа;
-да садржај тага „I" има између 5 и 18 алфанумеричких
-карактера у складу са прописаном спецификацијом
-            */
-
-            /* VALIDACIJA ZA SIFRU PLACANJE
-                НАПОМЕНА:
-                За садржај тага SF треба нарочито обратити пажњу на следеће:
-                таг P не сме садржати више од три реда;
-                ако се подаци уписују у две или три линије, уписују се по редоследу,
-                што подразумева да се прво уноси назив (име и презиме) платиоца,
-                затим улица и број и место платиоца;
-                број карактера у тагу P не сме бити већи од 70;
-                таг P може садржати бројеве, слова и специјалне карактере (анс)
-                у складу са прописом, а табела специјалних карактера приказана
-                је у оквиру појашњења за таг N;
-                шифра плаћања 189 или 289 прописана је само за трансакције по
-                налогу грађана. Ако су корисници услуге правна лица или
-                предузетници мора се унети друга шифра плаћања; да није унет
-                размак па затим две цифре;
-                да није унет размак па затим две цифре;
-                да садржај тага није раздвојен новом линијом
-            */
 
             /* VALIDACIJA ZA TAG P OPCIONALNI
 таг P не сме садржати више од три реда;
@@ -302,13 +344,26 @@
             */
 
             
-            var result = "K:PR|V:01|C:1|R:".concat($("#racun").val()
+            let result = "K:PR|V:01|C:1|R:".concat($("#racun").val()
                 , "|N:", $("#primalac").val()
                 , "|I:RSD", $("#iznos").val()
                 , "|SF:", $("#sifra").val()
-                , "|P:", $("#ime").val()
-                , "|S:", $("#svrha").val()
                 , "|RO:", $("#model").val().concat($("#poznabr").val()));
+
+            if($("#ime").val().length > 0) {
+                result = result.concat("|P:", $("#ime").val());
+            }
+
+            if($("#svrha").val().length > 0) {
+                result = result.concat("|S:", $("#svrha").val());
+            }
+
+            if($("#model").val().length > 0 || $("#poznabr").val().length > 0) {
+                const model = $("#model").val().length > 0 ? $("#model").val() : "00";
+                result = result.concat( "|RO:", model.concat($("#poznabr").val()));
+            }
+
+
 
             qrcode.makeCode(result);
             updejtujUrl();
