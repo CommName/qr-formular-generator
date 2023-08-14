@@ -216,15 +216,6 @@
     </div>
 
     <script type="text/javascript">
-        function validate_mod97(number) {
-            return number % 97n == 1n
-        }
-
-        function addzeros(brojracuna) {
-           let rest = brojracuna.slice(3);
-           let bank = brojracuna.slice(0,3);
-           return bank + "0".repeat(Math.max(15-rest.length, 0)) + rest;
-        }
 
         var qrcode = new QRCode(document.getElementById("qrcode"),
            {
@@ -233,24 +224,84 @@
                 colorDark: "#555555"
            });
 
+        function validateBrojRacuna() {
+            // Broj racuna palcanja se upsiuje kao niz od 18 cifara bez crtica
+            const racun = $("#racun").val();
+            console.log(racun);
+            for (let i = 0; i < racun.length; i++) {
+                if (racun[i] < '0' || racun[i] > '9') {
+                    return {
+                        "ok": false,
+                        "error": "Broj racuna sme da sadrzi samo cifre"
+                    }
+                }
+            }
+            if (racun.length != 18) {
+                return {
+                    "ok": false,
+                    "error": "Broj racuna mora da ima 18 karaktera" 
+                };
+            }
+            return {
+                "ok": true
+            };
+        }
+
         function makeCode () {
-            if ($("#racun").val() != "") {
-                if (!validate_mod97(BigInt(addzeros($("#racun").val()))))
-                    $("#racun").css("background-color", "seashell");
-                else
-                    $("#racun").css("background-color", "white");
-            }
+            const brojRacunaValidacija = validateBrojRacuna();
 
-            if ($("#model").val() == "97") {
-                let nr = $("#poznabr").val();
-                let check = nr.slice(2) + nr.slice(0,2);
-                if (!validate_mod97(BigInt(check)))
-                    $("#poznabr").css("background-color", "seashell");
-                else
-                    $("#poznabr").css("background-color", "white");
-            }
+            console.log(brojRacunaValidacija);
+
+
+
+            // VALIDACIJA NAZIVA PRIMAOCA N 70 karaktera maksimum, ne sme imati vise od 3 reda
+
+            /* validacija za iznos I
+да обавезно садржи ознаку RSD;
+да се обавезно уписује децимални зарез иза кога се не морају
+писати неважеће децималне нуле;
+да није изостављена цифра за цело место у износу;
+да није направљен размак између ознаке валуте и износа;
+да садржај тага „I" има између 5 и 18 алфанумеричких
+карактера у складу са прописаном спецификацијом
+            */
+
+            /* VALIDACIJA ZA SIFRU PLACANJE
+                НАПОМЕНА:
+                За садржај тага SF треба нарочито обратити пажњу на следеће:
+                таг P не сме садржати више од три реда;
+                ако се подаци уписују у две или три линије, уписују се по редоследу,
+                што подразумева да се прво уноси назив (име и презиме) платиоца,
+                затим улица и број и место платиоца;
+                број карактера у тагу P не сме бити већи од 70;
+                таг P може садржати бројеве, слова и специјалне карактере (анс)
+                у складу са прописом, а табела специјалних карактера приказана
+                је у оквиру појашњења за таг N;
+                шифра плаћања 189 или 289 прописана је само за трансакције по
+                налогу грађана. Ако су корисници услуге правна лица или
+                предузетници мора се унети друга шифра плаћања; да није унет
+                размак па затим две цифре;
+                да није унет размак па затим две цифре;
+                да садржај тага није раздвојен новом линијом
+            */
+
+            /* VALIDACIJA ZA TAG P OPCIONALNI
+таг P не сме садржати више од три реда;
+ако се подаци уписују у две или три линије, уписују се по редоследу,
+што подразумева да се прво уноси назив (име и презиме) платиоца,
+затим улица и број и место платиоца;
+број карактера у тагу P не сме бити већи од 70;
+таг P може садржати бројеве, слова и специјалне карактере (анс)
+у складу са прописом, а табела специјалних карактера приказана
+је у оквиру појашњења за таг N;
+            */
+
+            /* VALIDACIJA ZA TAG S OPCIONALNI
+            Ukupan broj karatkera je 35 upsuje se u jednoj ilniji
+
+            */
+
             
-
             var result = "K:PR|V:01|C:1|R:".concat($("#racun").val()
                 , "|N:", $("#primalac").val()
                 , "|I:RSD", $("#iznos").val()
