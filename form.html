@@ -228,7 +228,6 @@
         function validateBrojRacuna() {
             // Broj racuna palcanja se upsiuje kao niz od 18 cifara bez crtica
             const racun = $("#racun").val();
-            console.log(racun);
             for (let i = 0; i < racun.length; i++) {
                 if (racun[i] < '0' || racun[i] > '9') {
                     return {
@@ -402,8 +401,6 @@
 
             const utf8 = toUtf8(result);
 
-            console.log(result);
-            console.log("Encoded", utf8);
 
             qrcode.makeCode(utf8);
             updejtujUrl();
